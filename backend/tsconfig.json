@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",              // use latest JS features
+    "module": "ESNext",              // modern module system
+    "moduleResolution": "Node",      // resolve imports like Node
+    "esModuleInterop": true,         // allow importing CommonJS packages
+    "skipLibCheck": true,            // faster builds
+    "strict": true,                  // catch bugs earlier
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["."]
+}
