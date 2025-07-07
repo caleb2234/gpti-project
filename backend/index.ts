@@ -49,7 +49,7 @@ async function main() {
       preValidation: fastifyPassport.authenticate('google', { failureRedirect: '/' }),
     },
     async (req, reply) => {
-      reply.send({ user: req.user });
+      reply.redirect('http://localhost:5173/dashboard')
     }
   );
 
