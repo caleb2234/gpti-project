@@ -42,13 +42,13 @@ export default function Dashboard() {
       const { filename, status } = JSON.parse(event.data)
 
       setUploadedImages((prev) =>
-        prev.map((img) =>
+        prev.map((img) => 
           img.name === filename ? { ...img, status } : img
         )
       )
 
       if (status === 'Processed') {
-        fetchImages()
+        fetchImages();
       }
     };
     return () => socket.close();
@@ -71,7 +71,7 @@ export default function Dashboard() {
           <div key={idx} className="border p-3 rounded shadow">
             <div className="font-medium">{img.name}</div>
             <div className="text-sm text-muted-foreground">
-              {img.status === "Uploaded" && "Processing..."}
+              {img.status === "Uploaded to GCS" && "Processing..."}
               {img.status === "Processed" && <span className="text-green-600">✅ Processed</span>}
             </div>
           </div>

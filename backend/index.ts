@@ -5,23 +5,17 @@ import fastifyPassport from '@fastify/passport';
 import fastifySecureSession from '@fastify/secure-session';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import fastifyMultipart from '@fastify/multipart';
-import { Storage } from '@google-cloud/storage';
-import path from 'path';
 import websocketPlugin from "@fastify/websocket";
 import type { WebSocket } from 'ws';
-import { OPEN }        from 'ws';
-
+import swaggerPlugin from './plugins/swagger';
+import { clients } from "./utils/gcs";
+import uploadRoute from './routes/upload';
+import imagesRoute from './routes/images';
 
 dotenv.config();
 
-
-const storage = new Storage({
-  projectId: process.env.GCS_PROJECT_ID,
-  keyFilename: path.resolve(__dirname, process.env.GOOGLE_APPLICATION_CREDENTIALS || '')
-});
-const bucket = storage.bucket(process.env.GCS_BUCKET_NAME!);
-const clients = new Set<WebSocket>();
 const app = Fastify({ logger: true });
+
 
 async function main() {
   await app.register(websocketPlugin);
@@ -29,6 +23,7 @@ async function main() {
     origin: 'http://localhost:5173',
     credentials: true,
   });
+  await app.register(swaggerPlugin);
   await app.register(fastifySecureSession, {
   secret: process.env.SESSION_SECRET!,
   cookie: {
@@ -39,6 +34,7 @@ async function main() {
   await app.register(fastifyMultipart);
   await app.register(fastifyPassport.initialize());
   await app.register(fastifyPassport.secureSession());
+  
   app.get(
     '/ws',
     { websocket: true },
@@ -84,61 +80,8 @@ async function main() {
   app.get('/', async () => {
     return { message: 'Backend is running!' };
   });
-  app.get('/images', async (req, reply) => {
-    try {
-      const [files] = await bucket.getFiles();
-
-      const imageList = files.map((file) => {
-        return {
-          name: file.name,
-          publicUrl: `https://storage.googleapis.com/${bucket.name}/${file.name}`,
-        };
-      });
-
-      return { images: imageList };
-    } catch (err) {
-      req.log.error(err);
-      return reply.status(500).send({ error: 'Failed to list images' });
-    }
-  });
-
-  app.post('/upload', async (req, reply) => {
-    const parts = req.parts();
-    const imagePart = await parts.next();
-
-    if (imagePart.done || imagePart.value?.file === undefined) {
-      return reply.status(400).send({ error: "No file uploaded" });
-    }
-
-    const file = imagePart.value.file;
-    const filename = `${Date.now()}-${imagePart.value.filename}`;
-    const gcsFile = bucket.file(filename);
-
-    const stream = gcsFile.createWriteStream({
-      resumable: false,
-      contentType: imagePart.value.mimetype
-    });
-
-    await new Promise((resolve, reject) => {
-      file.pipe(stream)
-        .on('finish',resolve)
-        .on('error',reject);
-    });
-
-    setTimeout(() => {
-      for (const ws of clients) {
-        if (ws.readyState === OPEN) {
-          ws.send(JSON.stringify({ filename, status: 'Processed' }));
-        }
-      }
-    }, 3000);
-
-      return {
-        filename,
-        status: "Uploaded to GCS",
-      };
-    });
-
+  await app.register(imagesRoute);
+  await app.register(uploadRoute);
   app.listen({ port: 3001 }, (err, address) => {
     if (err) {
       console.error(err);
