@@ -7,6 +7,10 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import fastifyMultipart from '@fastify/multipart';
 import { Storage } from '@google-cloud/storage';
 import path from 'path';
+import websocketPlugin from "@fastify/websocket";
+import type { WebSocket } from 'ws';
+import { OPEN }        from 'ws';
+
 
 dotenv.config();
 
@@ -16,11 +20,11 @@ const storage = new Storage({
   keyFilename: path.resolve(__dirname, process.env.GOOGLE_APPLICATION_CREDENTIALS || '')
 });
 const bucket = storage.bucket(process.env.GCS_BUCKET_NAME!);
-
-const app = Fastify();
+const clients = new Set<WebSocket>();
+const app = Fastify({ logger: true });
 
 async function main() {
-  await app.register(fastifyMultipart);
+  await app.register(websocketPlugin);
   await app.register(cors, {
     origin: 'http://localhost:5173',
     credentials: true,
@@ -32,9 +36,23 @@ async function main() {
     httpOnly: true,
     },
   });
-
+  await app.register(fastifyMultipart);
   await app.register(fastifyPassport.initialize());
   await app.register(fastifyPassport.secureSession());
+  app.get(
+    '/ws',
+    { websocket: true },
+    (socket: WebSocket, _req) => {
+      clients.add(socket);
+
+      socket.on('message', msg => {
+        app.log.info('Received via WS:', msg);
+      });
+      socket.on('close', () => {
+        clients.delete(socket);
+      });
+    }
+  );
 
   fastifyPassport.use('google', new GoogleStrategy(
     {
@@ -105,13 +123,21 @@ async function main() {
       file.pipe(stream)
         .on('finish',resolve)
         .on('error',reject);
-    })
+    });
 
-    return {
-      filename,
-      status: "Uploaded to GCS",
-    };
-  });
+    setTimeout(() => {
+      for (const ws of clients) {
+        if (ws.readyState === OPEN) {
+          ws.send(JSON.stringify({ filename, status: 'Processed' }));
+        }
+      }
+    }, 3000);
+
+      return {
+        filename,
+        status: "Uploaded to GCS",
+      };
+    });
 
   app.listen({ port: 3001 }, (err, address) => {
     if (err) {

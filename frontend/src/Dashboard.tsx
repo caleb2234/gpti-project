@@ -34,9 +34,24 @@ export default function Dashboard() {
         credentials: "include",
       });
       const data = await res.json();
-      setImageGallery(data.images);
+      setImageGallery(data.images.reverse());
     };
     fetchImages();
+    const socket = new WebSocket('ws://localhost:3001/ws')
+    socket.onmessage = (event) => {
+      const { filename, status } = JSON.parse(event.data)
+
+      setUploadedImages((prev) =>
+        prev.map((img) =>
+          img.name === filename ? { ...img, status } : img
+        )
+      )
+
+      if (status === 'Processed') {
+        fetchImages()
+      }
+    };
+    return () => socket.close();
   }, []);
   return (
     <div className="p-8 max-w-xl mx-auto space-y-6">
@@ -55,7 +70,10 @@ export default function Dashboard() {
         {uploadedImages.map((img, idx) => (
           <div key={idx} className="border p-3 rounded shadow">
             <div className="font-medium">{img.name}</div>
-            <div className="text-sm text-muted-foreground">{img.status}</div>
+            <div className="text-sm text-muted-foreground">
+              {img.status === "Uploaded" && "Processing..."}
+              {img.status === "Processed" && <span className="text-green-600">✅ Processed</span>}
+            </div>
           </div>
         ))}
       </div>
