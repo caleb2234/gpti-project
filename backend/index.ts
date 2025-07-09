@@ -1,6 +1,5 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import dotenv from 'dotenv';
 import fastifyPassport from '@fastify/passport';
 import fastifySecureSession from '@fastify/secure-session';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
@@ -8,11 +7,11 @@ import fastifyMultipart from '@fastify/multipart';
 import websocketPlugin from "@fastify/websocket";
 import type { WebSocket } from 'ws';
 import swaggerPlugin from './plugins/swagger';
+import { initGCS } from './utils/gcs';
 import { clients } from "./utils/gcs";
 import uploadRoute from './routes/upload';
 import imagesRoute from './routes/images';
-
-dotenv.config();
+import { getSecret } from './utils/secrets';
 
 const app = Fastify({ logger: true });
 
@@ -25,12 +24,13 @@ async function main() {
   });
   await app.register(swaggerPlugin);
   await app.register(fastifySecureSession, {
-  secret: process.env.SESSION_SECRET!,
+  secret: await getSecret("SESSION_SECRET"),
   cookie: {
     path: '/',
     httpOnly: true,
     },
   });
+  await initGCS();
   await app.register(fastifyMultipart);
   await app.register(fastifyPassport.initialize());
   await app.register(fastifyPassport.secureSession());
@@ -52,9 +52,9 @@ async function main() {
 
   fastifyPassport.use('google', new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL!,
+      clientID: await getSecret("GOOGLE_CLIENT_ID"),
+      clientSecret: await getSecret("GOOGLE_CLIENT_SECRET"),
+      callbackURL: await getSecret("GOOGLE_CALLBACK_URL"),
     },
     async function (_accessToken, _refreshToken, profile, done){
       done(null,profile);
