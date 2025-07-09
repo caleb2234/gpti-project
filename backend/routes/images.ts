@@ -36,12 +36,12 @@ export default async function (app: FastifyInstance) {
     try {
       const [files] = await bucket.getFiles();
 
-      const imageList = files.map((file) => {
-        return {
-          name: file.name,
-          publicUrl: `https://storage.googleapis.com/${bucket.name}/${file.name}`,
-        };
-      });
+      const thumbFiles = files.filter(file => file.name.startsWith('thumb-'));
+
+      const imageList = thumbFiles.map((file) => ({
+        name: file.name,
+        publicUrl: `https://storage.googleapis.com/${bucket.name}/${file.name}`,
+      }));
 
       return { images: imageList };
     } catch (err) {

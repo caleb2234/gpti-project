@@ -1,0 +1,12 @@
+{
+  "name": "image-processor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "@google-cloud/secret-manager": "^6.0.1",
+    "@google-cloud/storage": "^7.16.0",
+    "ws": "^8.18.3",
+    "sharp": "^0.34.2"
+}
+}

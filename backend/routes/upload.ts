@@ -1,5 +1,4 @@
 import { FastifyInstance } from "fastify";
-import { OPEN } from 'ws';
 import { bucket, clients } from "../utils/gcs";
 import { isAuthenticated } from '../utils/auth';
 
@@ -43,14 +42,6 @@ export default async function (app: FastifyInstance) {
             .on('finish',resolve)
             .on('error',reject);
         });
-
-        setTimeout(() => {
-        for (const ws of clients) {
-            if (ws.readyState === OPEN) {
-            ws.send(JSON.stringify({ filename, status: 'Processed' }));
-            }
-        }
-        }, 3000);
 
         return {
             filename,

@@ -12,6 +12,7 @@ import { clients } from "./utils/gcs";
 import uploadRoute from './routes/upload';
 import imagesRoute from './routes/images';
 import { getSecret } from './utils/secrets';
+import { OPEN } from "ws";
 
 const app = Fastify({ logger: true });
 
@@ -43,6 +44,11 @@ async function main() {
 
       socket.on('message', msg => {
         app.log.info('Received via WS:', msg);
+      for (const client of clients) {
+        if (client.readyState === OPEN) {
+          client.send(msg.toString());
+        }
+    }
       });
       socket.on('close', () => {
         clients.delete(socket);
