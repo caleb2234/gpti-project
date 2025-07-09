@@ -1,10 +1,12 @@
 import { FastifyInstance } from "fastify";
 import { OPEN } from 'ws';
 import { bucket, clients } from "../utils/gcs";
+import { isAuthenticated } from '../utils/auth';
 
 
 export default async function (app: FastifyInstance) {
   app.post("/upload", {
+    preHandler: isAuthenticated,
     schema: {
       description: "Upload an image to GCS",
       tags: ["images"],
@@ -15,12 +17,7 @@ export default async function (app: FastifyInstance) {
             filename: { type: "string" },
             status: { type: "string" },
           },
-        },
-        400: {
-          type: "object",
-          properties: {
-            error: { type: "string" },
-          },
+          required: ["filename", "status"],
         },
       },
     },

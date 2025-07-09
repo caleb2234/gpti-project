@@ -1,10 +1,13 @@
 import { FastifyInstance } from "fastify";
 import { bucket } from "../utils/gcs";
+import { isAuthenticated } from "../utils/auth";
 
 
 export default async function (app: FastifyInstance) {
   app.get('/images', 
-    {schema: {
+    {
+      preHandler: isAuthenticated,
+      schema: {
         description: "Get list of images in bucket",
         tags: ["images"],
         response: {
@@ -18,18 +21,14 @@ export default async function (app: FastifyInstance) {
                             properties: {
                                 name: { type: "string"},
                                 publicUrl: { type: "string"}
-                            }
+                            },
+                            required: ["name", "publicUrl"],
                         }
                     }
-                }
+                },
+                required: ["images"],
             },
-            500: {
-                type: "object",
-                properties: {
-                    error: { type: "string" },
-
-                }
-            }
+            
         }
     },
     

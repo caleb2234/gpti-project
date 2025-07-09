@@ -6,25 +6,17 @@
  * OpenAPI spec version: 1.0.0
  */
 export type GetImages200ImagesItem = {
-  name?: string;
-  publicUrl?: string;
+  name: string;
+  publicUrl: string;
 };
 
 export type GetImages200 = {
-  images?: GetImages200ImagesItem[];
-};
-
-export type GetImages500 = {
-  error?: string;
+  images: GetImages200ImagesItem[];
 };
 
 export type PostUpload200 = {
-  filename?: string;
-  status?: string;
-};
-
-export type PostUpload400 = {
-  error?: string;
+  filename: string;
+  status: string;
 };
 
 export type getAuthGoogleResponse200 = {
@@ -148,13 +140,8 @@ export type getImagesResponse200 = {
   data: GetImages200
   status: 200
 }
-
-export type getImagesResponse500 = {
-  data: GetImages500
-  status: 500
-}
     
-export type getImagesResponseComposite = getImagesResponse200 | getImagesResponse500;
+export type getImagesResponseComposite = getImagesResponse200;
     
 export type getImagesResponse = getImagesResponseComposite & {
   headers: Headers;
@@ -194,13 +181,8 @@ export type postUploadResponse200 = {
   data: PostUpload200
   status: 200
 }
-
-export type postUploadResponse400 = {
-  data: PostUpload400
-  status: 400
-}
     
-export type postUploadResponseComposite = postUploadResponse200 | postUploadResponse400;
+export type postUploadResponseComposite = postUploadResponse200;
     
 export type postUploadResponse = postUploadResponseComposite & {
   headers: Headers;

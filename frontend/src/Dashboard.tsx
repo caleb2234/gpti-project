@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getImages } from "@/api/generated";
+import { postUpload } from "@/api/generated";
+
 export default function Dashboard() {
   const [file, setFile] = useState<File |null>(null);
   const [uploadedImages, setUploadedImages] = useState<{name: string, status: string}[]>([]);
@@ -10,15 +13,11 @@ export default function Dashboard() {
     const formData = new FormData();
     formData.append("image", file);
     try {
-      const res = await fetch("http://localhost:3001/upload", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Upload failed");
-      }
-      const data = await res.json();
+    const { data } = await postUpload({
+      body: formData,
+      credentials: "include",
+    });
+
       setUploadedImages((prev) => [
         ...prev,
         {name: data.filename, status: data.status},
@@ -30,11 +29,10 @@ export default function Dashboard() {
   };
   useEffect(() => {
     const fetchImages = async () => {
-      const res = await fetch("http://localhost:3001/images", {
+      const { data } = await getImages({
         credentials: "include",
       });
-      const data = await res.json();
-      setImageGallery(data.images.reverse());
+    setImageGallery(data.images.reverse());
     };
     fetchImages();
     const socket = new WebSocket('ws://localhost:3001/ws')
