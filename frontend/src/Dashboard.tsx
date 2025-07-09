@@ -35,10 +35,10 @@ export default function Dashboard() {
     setImageGallery(data.images.reverse());
     };
     fetchImages();
-    const socket = new WebSocket('wss://d19da8456f7c.ngrok-free.app/ws')
+    const socket = new WebSocket('wss://barely-diverse-pika.ngrok-free.app/ws') //or whatever you use to expose the backend
     socket.onmessage = (event) => {
       const { filename, status } = JSON.parse(event.data)
-      console.log('📬 WS message received:', { filename, status }); // ✅ Check if this fires
+      console.log('📬 WS message received:', { filename, status });
       setUploadedImages((prev) =>
         prev.map((img) => 
           img.name === filename ? { ...img, status } : img

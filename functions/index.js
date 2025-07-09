@@ -20,7 +20,7 @@ export const processImage = async (event, context) => {
   await bucket.upload(thumbPath, { destination: `thumb-${file}` });
 
   try {
-    const ws = new WebSocket("wss://d19da8456f7c.ngrok-free.app/ws");
+    const ws = new WebSocket("wss://barely-diverse-pika.ngrok-free.app/ws"); //or whatever you use to expose the backend
     ws.on('open', () => {
       console.log('✅ WS connection opened');
       ws.send(JSON.stringify({ filename: file, status: 'Processed' }));
