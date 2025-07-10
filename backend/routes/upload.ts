@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { bucket, clients } from "../utils/gcs";
+import { bucket } from "../utils/gcs";
 import { isAuthenticated } from '../utils/auth';
 
 

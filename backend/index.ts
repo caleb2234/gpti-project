@@ -13,6 +13,7 @@ import uploadRoute from './routes/upload';
 import imagesRoute from './routes/images';
 import { getSecret } from './utils/secrets';
 import { OPEN } from "ws";
+import trpcRoute from './routes/trpc';
 
 const app = Fastify({ logger: true });
 
@@ -35,7 +36,9 @@ async function main() {
   await app.register(fastifyMultipart);
   await app.register(fastifyPassport.initialize());
   await app.register(fastifyPassport.secureSession());
-  
+  await app.register(trpcRoute);
+
+
   app.get(
     '/ws',
     { websocket: true },
