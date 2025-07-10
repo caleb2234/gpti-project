@@ -73,6 +73,19 @@ export default function Dashboard() {
   }
   return (
     <div className="p-8 max-w-xl mx-auto space-y-6">
+      <Button
+        variant="outline"
+        className="mt-4"
+        onClick={async () => {
+          await fetch("http://localhost:3001/auth/logout", {
+            credentials: "include",
+          });
+          navigate("/");
+          toast.success("Signed out");
+        }}
+      >
+        Logout
+      </Button>
       <h1 className="text-2xl font-bold">Dashboard</h1>
       {!userLoading && user && (
         <div className="text-sm text-muted-foreground">

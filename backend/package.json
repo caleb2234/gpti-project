@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.10",
+    "@types/passport-google-oauth20": "^2.0.16",
     "@types/ws": "^8.18.1",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
