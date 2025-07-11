@@ -17,35 +17,54 @@ This is a full-stack image processing where users can upload images to Google Cl
 - Realtime WebSocket updates
 
 # Running Locally
-1. git clone https://github.com/caleb2234/gpti-project.git
-2. cd gpti-project
-3. Install dependencies:
-  - cd frontend
-  - npm install
-  - cd..
-  - cd backend
-  - npm install
-  - cd..
-4. Configure Secret Manager with GCS information (more information in next section)
+1. Clone the repo
+```bash
+git clone https://github.com/caleb2234/gpti-project.git
+cd gpti-project
+```
+2. Install dependencies:
+```bash
+cd frontend
+npm install
+
+cd ../backend
+npm install
+``` 
+3. Configure Secret Manager with GCS information (more information in next section)
   - e.g. bucket name, client id, client secret, ...
-  - Set up Application Default Credentials (ADC) to access secrets
-5. Start Backend
-  - New Window (..\gpti-project\backend>):
-  - npx tsx index.ts
-6. Start Frontend
-  - New Window (..\gpti-project\frontend>):
-  - npm run dev
-7. Start ngrok tunnel (Install ngrok if you don't have it):
-  - New Window
-  - ngrok http 3001
+  - Set up Application Default Credentials (ADC) to access secrets:
+   ```bash
+   gcloud auth application-default login
+   ``` 
+4. Start Backend
+  - In new terminal:
+   ```bash
+   cd backend
+   npx tsx index.ts
+   ```
+5. Start Frontend
+  - In new terminal:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+6. Start ngrok tunnel (Install ngrok if you don't have it):
+  - New terminal
+   ```bash
+   ngrok http 3001
+   ```
   - Change the websocket url to provided tunnel (in \functions\index.js and \frontend\src\Dashboard.tsx)
     - 'wss://{provided url}/ws'
   - e.g. wss://barely-diverse-pika.ngrok-free.app/ws
-  - Update the Google Cloud Function with this (..\gpti-project\functions) :
-    -   gcloud functions deploy processImage \
-        --runtime nodejs22 \
-        --trigger-resource your-bucket-name \
-        --trigger-event google.storage.object.finalize \
-        --entry-point processImage \
-        --region us-east1
-8. Enter http://localhost:5173/
+7. Deploy Google Cloud Function :
+   ```bash
+   cd functions
+   gcloud functions deploy processImage \
+       --runtime nodejs22 \
+       --trigger-resource your-bucket-name \
+       --trigger-event google.storage.object.finalize \
+       --entry-point processImage \
+       --region us-east1
+   ```
+
+8. Visit http://localhost:5173/
