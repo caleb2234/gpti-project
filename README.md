@@ -2,6 +2,9 @@
  
 This is a full-stack image processing where users can upload images to Google Cloud Storage via signing in with Google OAuth 2.0, which is then processed into a thumbnail. It is built with React, Google Cloud, and Fastify.
 
+# Loom Video
+https://www.loom.com/share/c40f39c43e0c4c19a1fa3385af2a76dd?sid=f89aaa72-c377-4b28-9b23-8c9b575c8c91
+
 # BACKEND
 
 - Fastify + TypeScript
