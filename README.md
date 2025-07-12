@@ -32,10 +32,6 @@ npm install
 ``` 
 3. Configure Secret Manager with GCS information (more information in next section)
   - e.g. bucket name, client id, client secret, ...
-  - Set up Application Default Credentials (ADC) to access secrets:
-   ```bash
-   gcloud auth application-default login
-   ``` 
 4. Start Backend
   - In new terminal:
    ```bash
@@ -68,3 +64,23 @@ npm install
    ```
 
 8. Visit http://localhost:5173/
+
+# Setting up Secrets (Google Secret Manager)
+This project uses Google Secret Manager to securely store credentials like OAuth keys, bucket names, and session secrets. These secrets are read at runtime by the backend.
+
+| Secret Name            | Description                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `GOOGLE_CLIENT_ID`     | OAuth 2.0 Client ID from your Google Cloud project                             |
+| `GOOGLE_CLIENT_SECRET` | OAuth 2.0 Client Secret                                                        |
+| `GOOGLE_CALLBACK_URL`  | `http://localhost:3001/auth/google/callback`                                   |
+| `GCS_BUCKET_NAME`      | Your Cloud Storage bucket name                                                 |
+| `SESSION_SECRET`       | A long random string                                                           |
+
+- After you've set up your secrets, grant yourself access to these secrets (either with the CLI or through the IAM page on the Cloud Console)
+- Set up Application Default Credentials (ADC) to access secrets:
+ ```bash
+ gcloud auth application-default login
+ ``` 
+# Google OAuth 2.0 Credentials
+You can create your credentials by going to the Cloud Console, going to APIs and Services and then creating your credentials. Choose Web Application then set the authorized redirect URI to `http://localhost:3001/auth/google/callback`
+Then copy the Client ID, Client Secret, and Callback URI to your secret manager.
